@@ -1,0 +1,15 @@
+/build/
+/out/
+/.signing/
+/payload/
+/assets/payload.zip
+/assets/payload.sha256
+/assets/control.jar
+*.apk
+*.apkm
+*.so
+*.jks
+*.keystore
+*.log
+__pycache__/
+.DS_Store

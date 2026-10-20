@@ -1,0 +1,12 @@
+Google Services Restore
+Copyright 2026 smr518
+
+The original application, helper, scripts and configuration in this source
+repository are licensed under Apache License 2.0.
+
+Google Play services, Google Services Framework and Google Play Store are
+third-party proprietary components belonging to their respective owners.
+They are not included in the source repository. The tested deployment APK
+contains these components; the source license does not grant rights in them.
+Google and HONOR names identify interoperability and device support.
+This project is not affiliated with or endorsed by those companies.
