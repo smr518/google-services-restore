@@ -28,8 +28,11 @@ release_lock() {
   if [ "$(cat "$LOCK/pid" 2>/dev/null || true)" = "$$" ]; then rm -f "$LOCK/pid"; rmdir "$LOCK" 2>/dev/null || true; fi
 }
 supported() {
-  [ "$(getprop ro.product.model)" = LSA-AN00 ] && [ "$(getprop ro.build.version.sdk)" = 34 ] &&
-    [ "$(getprop ro.build.display.id)" = 'LSA-AN00 8.0.0.221(C00E220R8P3)' ]
+  [ "$(getprop ro.product.model)" = LSA-AN00 ] && [ "$(getprop ro.build.version.sdk)" = 34 ] || return 1
+  case "$(getprop ro.build.display.id)" in
+    'LSA-AN00 8.0.0.221'|'LSA-AN00 8.0.0.221('*')') return 0;;
+    *) return 1;;
+  esac
 }
 preflight() {
   [ "$(id -u)" = 0 ] || { say '需要 Root 授权'; exit 1; }
