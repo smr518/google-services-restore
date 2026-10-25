@@ -28,16 +28,19 @@ release_lock() {
   if [ "$(cat "$LOCK/pid" 2>/dev/null || true)" = "$$" ]; then rm -f "$LOCK/pid"; rmdir "$LOCK" 2>/dev/null || true; fi
 }
 supported() {
-  [ "$(getprop ro.product.model)" = LSA-AN00 ] && [ "$(getprop ro.build.version.sdk)" = 34 ] || return 1
-  case "$(getprop ro.build.display.id)" in
-    'LSA-AN00 8.0.0.221'|'LSA-AN00 8.0.0.221('*')') return 0;;
-    *) return 1;;
-  esac
+  # No model, build ID or kernel-version whitelist; check actual payload requirements.
+  sdk=$(getprop ro.build.version.sdk)
+  case "$sdk" in ''|*[!0-9]*) return 1;; esac
+  [ "$sdk" -ge 34 ] || return 1
+  case ",$(getprop ro.product.cpu.abilist)," in *,arm64-v8a,*) return 0;; *) return 1;; esac
 }
 preflight() {
   [ "$(id -u)" = 0 ] || { say '需要 Root 授权'; exit 1; }
-  supported || { say '当前版本尚未适配，停止操作'; exit 1; }
+  [ "${1:-}" = undo ] || supported || { say '内置组件需要 Android14 / SDK34+ 与 arm64-v8a；App本身没有机型或内核白名单'; exit 1; }
   [ -x "$BB" ] || { say '未发现配套 KernelSU 工具'; exit 1; }
+  if [ "${1:-}" != undo ]; then
+    grep -qw overlay /proc/filesystems || { say '内核未提供OverlayFS，无法临时挂载'; exit 1; }
+  fi
   [ "$(readlink /proc/self/ns/mnt)" = "$(readlink /proc/1/ns/mnt)" ] || { say '未进入全局挂载空间'; exit 1; }
 }
 has_mount() { awk -v p="$1" '$5==p {found=1} END {exit !found}' /proc/self/mountinfo; }
@@ -157,7 +160,7 @@ health() {
 readonly_status() {
   say "系统：$(getprop ro.product.model) / Android $(getprop ro.build.version.release)"
   say 'Root：已授权'
-  if ! supported; then say '适配检查：当前系统版本不受支持'; return; fi
+  if ! supported; then say '组件要求：需要SDK34+与arm64-v8a；当前不能部署这组组件'; return; fi
   if [ -f "$B/status" ]; then cat "$B/status"; fi
   if packages_ready; then
     say '组件：三件套均已注册'
@@ -189,7 +192,7 @@ case "${1:-status}" in
     status '超时撤销完成，请重新检查状态'
     exit 0;;
 esac
-preflight
+preflight "$1"
 acquire_lock || { say '已有操作正在运行，请勿重复点击'; exit 2; }
 trap release_lock EXIT
 case "$1" in

@@ -36,18 +36,21 @@ public class MainActivity extends Activity {
     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR|View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
     ScrollView scroll=new ScrollView(this);scroll.setBackgroundColor(Color.rgb(246,248,244));
     LinearLayout body=new LinearLayout(this);body.setOrientation(1);body.setPadding(dp(24),dp(28),dp(24),dp(32));scroll.addView(body);setContentView(scroll);
-    TextView badge=text("LSA · Android 14",13,Color.rgb(22,107,84));body.addView(badge);
+    TextView badge=text("实验兼容版 · 无机型/内核白名单",13,Color.rgb(22,107,84));body.addView(badge);
     TextView title=text("谷歌服务恢复",30,Color.rgb(22,36,30));title.setTypeface(null,Typeface.BOLD);title.setPadding(0,dp(10),0,dp(12));body.addView(title);
     TextView intro=text("重启并重新获取 Root 后，手动恢复这台手机的谷歌组件。",16,Color.rgb(79,93,84));body.addView(intro);
     state=text("尚未检查。请先在 KernelSU 中允许本 App 获取 Root。",16,Color.rgb(22,64,49));state.setPadding(dp(18),dp(18),dp(18),dp(18));state.setBackground(card(Color.rgb(229,239,232)));
     LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=dp(22);sp.bottomMargin=dp(8);body.addView(state,sp);
     restore=button(body,"一键恢复",true);check=button(body,"检查状态",false);repair=button(body,"仅修复联网与下载",false);
     Button store=button(body,"打开 Play 商店",false);undo=button(body,"撤销本 App 的更改",false);
-    TextView note=text("首次准备约需 1.5 GB 可用存储。恢复时可能短暂黑屏、关闭应用；不会自动提权或整机重启。只适配已验证的 LSA-AN00 / 8.0.0.221。",13,Color.rgb(92,101,94));note.setPadding(0,dp(20),0,dp(18));body.addView(note);
+    TextView note=text("首次准备约需 1.5 GB 可用存储。恢复时可能短暂黑屏、关闭应用；不会自动提权或整机重启。不限制机型、内核或系统构建号；仅荣耀60原测试固件实测。组件仍需SDK34+、arm64与配套Root工具。",13,Color.rgb(92,101,94));note.setPadding(0,dp(20),0,dp(18));body.addView(note);
     log=text("",12,Color.rgb(74,84,78));log.setTextIsSelectable(true);log.setTypeface(Typeface.MONOSPACE);body.addView(log);
+    new AlertDialog.Builder(this).setTitle("兼容性提示")
+      .setMessage("本版不按机型、内核或系统构建号限制使用。内核相近不代表兼容，仅荣耀60原测试固件实测。部署仍需Android14及以上、arm64、KernelSU配套工具、全局挂载空间和OverlayFS。其他设备可能失败、黑屏或需要人工重启。请先检查状态并保留恢复方式。")
+      .setPositiveButton("了解，先检查状态",(d,w)->execute("status")).setNegativeButton("暂不使用",(d,w)->finish()).show();
     check.setOnClickListener(v->execute("status"));repair.setOnClickListener(v->execute("repair"));
     restore.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("恢复谷歌服务")
-      .setMessage("请保存未完成的工作。若组件尚未挂载，会重启 Android 服务并关闭当前 App，约 1–3 分钟后重新打开查看结果；已有组件则只修复配置。不会整机重启，但异常时仍可能需要人工重启，临时 Root 可能丢失。")
+      .setMessage("其他设备/固件未经验证，内核相近不代表兼容。请确认有恢复方式并保存工作。若组件尚未挂载，会重启 Android 服务并关闭当前 App，约 1–3 分钟后重新打开查看结果；已有组件则只修复配置。不会整机重启，但异常时仍可能需要人工重启，临时 Root 可能丢失。")
       .setNegativeButton("取消",null).setPositiveButton("已保存，开始恢复",(d,w)->execute("restore")).show());
     undo.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("撤销本 App 的更改")
       .setMessage("只撤销本 App 添加的配置和挂载，不删除账号、应用或暂存安装包。撤销挂载会重启 Android 服务。以前由电脑创建的挂载不会移除。请先保存工作。")

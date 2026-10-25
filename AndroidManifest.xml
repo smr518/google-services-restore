@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.smr.googlerestore" android:versionCode="2" android:versionName="1.0.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.smr.googlerestore" android:versionCode="3" android:versionName="1.1.0">
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34"/>
   <application android:label="谷歌服务恢复" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false" android:icon="@drawable/ic_restore">
     <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden">
